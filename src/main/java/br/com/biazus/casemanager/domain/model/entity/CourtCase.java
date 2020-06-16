@@ -7,7 +7,8 @@ import java.util.List;
 import org.springframework.cloud.gcp.data.datastore.core.mapping.Entity;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
-import org.springframework.util.StringUtils;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -15,7 +16,7 @@ import lombok.EqualsAndHashCode;
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Entity(name = "case")
-public class CourtCase implements Serializable {
+public class CourtCase implements CaseSpecification, Serializable {
 	
 	private static final long serialVersionUID = 4947422174891821179L;
 
@@ -32,23 +33,9 @@ public class CourtCase implements Serializable {
 	private LocalDateTime creationDate;
 	private List<String> tags;
 	
-	public Boolean validate() {
-		if (StringUtils.isEmpty(client)) {
-			return false;
-		}
-		
-		if (StringUtils.isEmpty(title)) {
-			return false;
-		}
-		
-		if (StringUtils.isEmpty(responsible)) {
-			return false;
-		}
-		
-		if (!StringUtils.isEmpty(folder) && folder.length() > 40) {
-			return false;
-		}
-		
-		return true;
+	@Override
+	@JsonIgnore
+	public String getAccessDescription() {
+		return getAccess() != null ? getAccess().name() : "";
 	}
 }

@@ -1,6 +1,9 @@
 package br.com.biazus.casemanager.domain.model.adapter;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import br.com.biazus.casemanager.domain.model.entity.AccessType;
 import br.com.biazus.casemanager.domain.model.entity.CourtCase;
@@ -39,6 +42,20 @@ public class CourtCaseAdapter {
 		courtCaseDTO.setCreationDate(courtCase.getCreationDate());
 		courtCaseDTO.setTags(courtCase.getTags());
 		return courtCaseDTO;
+	}
+	
+	public static List<CourtCaseDTO> toCourtCaseDTOList(Iterable<CourtCase> cases) {
+		return StreamSupport.stream(cases.spliterator(), false).map(courtCase -> toCourtCaseDTO(courtCase)).collect(Collectors.toList());
+	}
+	
+	public static List<CourtCase> toCourtCaseList(List<CourtCaseDTO> cases) throws InvalidAccessTypeException {
+		return cases.stream().map(courtCase -> {
+			try {
+				return toCourtCase(courtCase);
+			} catch (InvalidAccessTypeException e) {
+				throw new RuntimeException(e);
+			}
+		}).collect(Collectors.toList());
 	}
 
 }

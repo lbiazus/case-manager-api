@@ -2,6 +2,8 @@ package br.com.biazus.casemanager.controller;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
+import java.util.List;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +31,7 @@ public class CourtCaseController {
 	private final Log LOG = LogFactory.getLog(CourtCaseController.class);
 	
 	private static final String SUCCESS_MESSAGE_FORMAT = "Case %s Successfully %s";
+	private static final String SUCCESS_BATCH_MESSAGE_FORMAT = "%s Cases Successfully %s";
 	
 	@Autowired
 	private CourtCaseService service;
@@ -38,6 +41,17 @@ public class CourtCaseController {
 		try {
 			CourtCaseDTO courtCase = service.saveCourtCase(caseDTO);
 			return new ResponseEntity<>(String.format(SUCCESS_MESSAGE_FORMAT, courtCase.getId(), "Inserted"), HttpStatus.OK);
+		} catch (InvalidCourtCaseException | InvalidAccessTypeException e) {
+			LOG.error(e.getMessage(), e);
+			return new ResponseEntity<>(e.getMessage(), HttpStatus.PRECONDITION_FAILED);
+		}
+	}
+	
+	@PostMapping(value="/batch", consumes = APPLICATION_JSON_VALUE)
+	public ResponseEntity<String> insertBatchCourtCase(@RequestBody List<CourtCaseDTO> courtCases) {
+		try {
+			List<CourtCaseDTO> cases = service.saveListCourtCase(courtCases);
+			return new ResponseEntity<>(String.format(SUCCESS_BATCH_MESSAGE_FORMAT, cases.size(), "Inserted"), HttpStatus.OK);
 		} catch (InvalidCourtCaseException | InvalidAccessTypeException e) {
 			LOG.error(e.getMessage(), e);
 			return new ResponseEntity<>(e.getMessage(), HttpStatus.PRECONDITION_FAILED);
@@ -60,15 +74,19 @@ public class CourtCaseController {
 		return new ResponseEntity<>(service.findCourtCaseById(id), HttpStatus.OK);
 	}
 	
+	@GetMapping(value="/list", produces = APPLICATION_JSON_VALUE)
+	public ResponseEntity<List<CourtCaseDTO>> getAllCourtCase() {
+		return new ResponseEntity<>(service.findAllCourtCase(), HttpStatus.OK);
+	}
+	
 	@DeleteMapping(value="/{id}", produces = APPLICATION_JSON_VALUE)
 	public ResponseEntity<String> deleteCourtCase(@PathVariable Long id) {
 		try {
-		service.deleteCourtCase(id);
-		return new ResponseEntity<>(String.format(SUCCESS_MESSAGE_FORMAT, id, "Deleted"), HttpStatus.OK);
+			service.deleteCourtCase(id);
+			return new ResponseEntity<>(String.format(SUCCESS_MESSAGE_FORMAT, id, "Deleted"), HttpStatus.OK);
 		} catch (CourtCaseNotFoundException e) {
 			LOG.error(e.getMessage(), e);
 			return new ResponseEntity<>(e.getMessage(), HttpStatus.FAILED_DEPENDENCY);
 		}
 	}
-
 }

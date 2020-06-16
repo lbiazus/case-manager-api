@@ -1,15 +1,16 @@
 package br.com.biazus.casemanager.domain.model.service;
 
+import static br.com.biazus.casemanager.domain.model.adapter.CourtCaseAdapter.toCourtCase;
 import static br.com.biazus.casemanager.domain.model.adapter.CourtCaseAdapter.toCourtCaseDTO;
+import static br.com.biazus.casemanager.domain.model.adapter.CourtCaseAdapter.toCourtCaseDTOList;
+import static br.com.biazus.casemanager.domain.model.adapter.CourtCaseAdapter.toCourtCaseList;
+import static br.com.biazus.casemanager.domain.model.validator.CourtCaseValidator.validate;
 
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import br.com.biazus.casemanager.domain.model.adapter.CourtCaseAdapter;
 import br.com.biazus.casemanager.domain.model.entity.CourtCase;
 import br.com.biazus.casemanager.domain.model.entity.CourtCaseDTO;
 import br.com.biazus.casemanager.domain.model.repository.CourtCaseRepository;
@@ -24,7 +25,7 @@ public class CourtCaseService {
 	private CourtCaseRepository repository;
 	
 	public List<CourtCaseDTO> findAllCourtCase() {
-		return StreamSupport.stream(repository.findAll().spliterator(), false).map(courtCase -> CourtCaseAdapter.toCourtCaseDTO(courtCase)).collect(Collectors.toList());
+		return toCourtCaseDTOList(repository.findAll());
 	}
 
 	public CourtCaseDTO findCourtCaseById(Long id) {
@@ -32,10 +33,18 @@ public class CourtCaseService {
 	}
 	
 	public CourtCaseDTO saveCourtCase(CourtCaseDTO courtCaseDTO) throws InvalidCourtCaseException, InvalidAccessTypeException {
-		if (!courtCaseDTO.validate()) {
+		if (!validate(courtCaseDTO)) {
 			throw new InvalidCourtCaseException();
 		}
-		return toCourtCaseDTO(repository.save(CourtCaseAdapter.toCourtCase(courtCaseDTO)));
+		return toCourtCaseDTO(repository.save(toCourtCase(courtCaseDTO)));
+	}
+	
+	public List<CourtCaseDTO> saveListCourtCase(List<CourtCaseDTO> cases) throws InvalidCourtCaseException, InvalidAccessTypeException {
+		if (!validate(cases)) {
+			throw new InvalidCourtCaseException();
+		}
+		
+		return toCourtCaseDTOList(repository.saveAll(toCourtCaseList(cases)));
 	}
 	
 	public void deleteCourtCase(Long id) throws CourtCaseNotFoundException {
@@ -45,5 +54,4 @@ public class CourtCaseService {
 		
 		repository.deleteById(id);
 	}
-
 }

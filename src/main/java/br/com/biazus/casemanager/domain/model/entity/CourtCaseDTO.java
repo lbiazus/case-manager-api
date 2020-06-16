@@ -4,14 +4,14 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import org.springframework.util.StringUtils;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 @Data
 @EqualsAndHashCode(callSuper = false)
-public class CourtCaseDTO implements Serializable {
+public class CourtCaseDTO implements CaseSpecification, Serializable {
 	
 	private static final long serialVersionUID = 4929545270370785503L;
 	
@@ -26,27 +26,9 @@ public class CourtCaseDTO implements Serializable {
 	private LocalDateTime creationDate;
 	private List<String> tags;
 	
-	public Boolean validate() {
-		if (StringUtils.isEmpty(client)) {
-			return false;
-		}
-		
-		if (StringUtils.isEmpty(title)) {
-			return false;
-		}
-		
-		if (StringUtils.isEmpty(responsible)) {
-			return false;
-		}
-		
-		if (!StringUtils.isEmpty(folder) && folder.length() > 40) {
-			return false;
-		}
-		
-		if (!AccessType.isValid(access)) {
-			return false;
-		}
-		
-		return true;
+	@Override
+	@JsonIgnore
+	public String getAccessDescription() {
+		return getAccess();
 	}
 }
