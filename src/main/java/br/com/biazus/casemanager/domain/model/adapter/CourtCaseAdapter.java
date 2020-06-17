@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
+import org.springframework.util.StringUtils;
+
 import br.com.biazus.casemanager.domain.model.entity.AccessType;
 import br.com.biazus.casemanager.domain.model.entity.CourtCase;
 import br.com.biazus.casemanager.domain.model.entity.CourtCaseDTO;
@@ -23,7 +25,7 @@ public class CourtCaseAdapter {
 		courtCase.setDescription(dto.getDescription());
 		courtCase.setNotes(dto.getNotes());
 		courtCase.setResponsible(dto.getResponsible());
-		courtCase.setAccess(AccessType.findByName(dto.getAccess()));
+		courtCase.setAccess(!StringUtils.isEmpty(dto.getAccess()) ? AccessType.findByName(dto.getAccess()) : null);
 		courtCase.setCreationDate(dto.getId() == null && dto.getCreationDate() == null ? LocalDateTime.now() : dto.getCreationDate());
 		courtCase.setTags(dto.getTags());
 		return courtCase;

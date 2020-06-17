@@ -9,6 +9,7 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -77,6 +78,20 @@ public class CourtCaseController {
 	@GetMapping(value="/list", produces = APPLICATION_JSON_VALUE)
 	public ResponseEntity<List<CourtCaseDTO>> getAllCourtCase() {
 		return new ResponseEntity<>(service.findAllCourtCase(), HttpStatus.OK);
+	}
+	
+	@PostMapping(value="/search", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
+	public ResponseEntity<List<CourtCaseDTO>> getAllCourtCaseByFilter(@RequestBody CourtCaseDTO courtCase) throws Exception {
+		if (isFilterBlank(courtCase)) {
+			return getAllCourtCase();
+		}
+		
+		return new ResponseEntity<>(service.findCourtCaseByExample(courtCase), HttpStatus.OK);
+	}
+	
+	private Boolean isFilterBlank(CourtCaseDTO courtCase) {
+		return courtCase == null || StringUtils.isEmpty(courtCase.getClient()) || StringUtils.isEmpty(courtCase.getFolder()) ||
+				StringUtils.isEmpty(courtCase.getAccess()) || courtCase.getTags() == null || courtCase.getTags().isEmpty();
 	}
 	
 	@DeleteMapping(value="/{id}", produces = APPLICATION_JSON_VALUE)

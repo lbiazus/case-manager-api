@@ -9,6 +9,7 @@ import static br.com.biazus.casemanager.domain.model.validator.CourtCaseValidato
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Example;
 import org.springframework.stereotype.Service;
 
 import br.com.biazus.casemanager.domain.model.entity.CourtCase;
@@ -30,6 +31,10 @@ public class CourtCaseService {
 
 	public CourtCaseDTO findCourtCaseById(Long id) {
 		return toCourtCaseDTO(repository.findById(id).orElseGet(CourtCase::new));
+	}
+	
+	public List<CourtCaseDTO> findCourtCaseByExample(CourtCaseDTO courtCaseDTO) throws InvalidAccessTypeException {
+		return toCourtCaseDTOList(repository.findAll(Example.of(toCourtCase(courtCaseDTO))));
 	}
 	
 	public CourtCaseDTO saveCourtCase(CourtCaseDTO courtCaseDTO) throws InvalidCourtCaseException, InvalidAccessTypeException {
